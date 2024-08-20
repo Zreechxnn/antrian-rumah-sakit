@@ -22,7 +22,7 @@ Sebelum menjalankan proyek ini, pastikan Anda telah menginstal SDL2 dan SDL_ttf.
 1. **Unduh atau Kloning Repository:**
 
     ```sh
-    git clone[ https://github.com/username/repository.git](https://github.com/Zreechxnn/antrian-rumah-sakit.git)
+    git clone https://github.com/Zreechxnn/antrian-rumah-sakit.git
     cd antrian-rumah-sakit
     ```
 
