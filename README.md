@@ -22,8 +22,8 @@ Sebelum menjalankan proyek ini, pastikan Anda telah menginstal SDL2 dan SDL_ttf.
 1. **Unduh atau Kloning Repository:**
 
     ```sh
-    git clone https://github.com/username/repository.git
-    cd repository
+    git clone[ https://github.com/username/repository.git](https://github.com/Zreechxnn/antrian-rumah-sakit.git)
+    cd antrian-rumah-sakit
     ```
 
 2. **Kompilasi Program:**
@@ -31,7 +31,7 @@ Sebelum menjalankan proyek ini, pastikan Anda telah menginstal SDL2 dan SDL_ttf.
     Gunakan perintah berikut untuk mengkompilasi program:
 
     ```sh
-    g++ main.cpp -o sistem_antrian -lSDL2 -lSDL2_ttf
+    g++ main.cpp -o antrianrs.exe -lSDL2 -lSDL2_ttf
     ```
 
 3. **Jalankan Program:**
@@ -39,7 +39,7 @@ Sebelum menjalankan proyek ini, pastikan Anda telah menginstal SDL2 dan SDL_ttf.
     Setelah kompilasi berhasil, jalankan program dengan perintah:
 
     ```sh
-    ./sistem_antrian
+    ./antrianrs.exe
     ```
 
 ## Struktur Kode
@@ -54,11 +54,6 @@ Sebelum menjalankan proyek ini, pastikan Anda telah menginstal SDL2 dan SDL_ttf.
 - Klik tombol "Layani Pasien" untuk melayani pasien pertama dalam antrian.
 - Klik tombol "Keluar" untuk menutup aplikasi.
 
-## Lisensi
-Proyek ini dilisensikan di bawah MIT License. Lihat file `LICENSE` untuk rincian lebih lanjut.
-
-## Kontak
-Jika Anda memiliki pertanyaan atau masukan, silakan hubungi [email@example.com](mailto:email@example.com).
 
 ---
 
