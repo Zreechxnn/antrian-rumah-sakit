@@ -2,6 +2,7 @@
 
 ## Deskripsi
 Proyek ini adalah aplikasi sistem antrian rumah sakit sederhana yang dibuat menggunakan SDL2 dan SDL_ttf. Aplikasi ini memungkinkan pengguna untuk mendaftarkan pasien, melayani pasien, dan menampilkan antrian pasien dengan antarmuka grafis sederhana.
+
 ![image](https://github.com/user-attachments/assets/6b64e76c-a8a1-4968-b14d-af3499e379e2)
 
 
