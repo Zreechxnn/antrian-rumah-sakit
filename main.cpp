@@ -35,50 +35,50 @@ struct Button {
         : rect({x, y, w, h}), idleColor(idle), hoverColor(hover), clickColor(click), text(t), state(BUTTON_IDLE) {}
 };
 
-struct Pasien {
-    string nama;
+struct Patient {
+    string name;
     int id;
-    string poli;
+    string department;
 };
 
-class AntrianRumahSakit {
+class HospitalQueue {
 private:
-    queue<Pasien> antrian;
-    Pasien pasienDilayani;
-    bool melayani;
+    queue<Patient> queue;
+    Patient currentPatient;
+    bool serving;
 public:
-    AntrianRumahSakit() : melayani(false) {}
-    void daftarPasien(const string& nama, int id, const string& poli);
-    void layaniPasien();
-    void tampilkanAntrian(SDL_Renderer* renderer, TTF_Font* font, int startY, int& tableHeight);
-    const queue<Pasien>& getAntrian() const { return antrian; }
-    const Pasien& getPasienDilayani() const { return pasienDilayani; }
-    bool isMelayani() const { return melayani; }
+    HospitalQueue() : serving(false) {}
+    void registerPatient(const string& name, int id, const string& department);
+    void servePatient();
+    void displayQueue(SDL_Renderer* renderer, TTF_Font* font, int startY, int& tableHeight);
+    const queue<Patient>& getQueue() const { return queue; }
+    const Patient& getCurrentPatient() const { return currentPatient; }
+    bool isServing() const { return serving; }
 };
 
 void renderText(SDL_Renderer* renderer, TTF_Font* font, const string& text, SDL_Color color, int x, int y);
 void renderButton(SDL_Renderer* renderer, TTF_Font* font, const Button& button);
-void renderTable(SDL_Renderer* renderer, TTF_Font* font, const queue<Pasien>& antrian, int startY, int& tableHeight);
+void renderTable(SDL_Renderer* renderer, TTF_Font* font, const queue<Patient>& queue, int startY, int& tableHeight);
 bool init(SDL_Window** window, SDL_Renderer** renderer, TTF_Font** font);
 void close(SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font);
 
-void AntrianRumahSakit::daftarPasien(const string& nama, int id, const string& poli) {
-    Pasien pasienBaru = {nama, id, poli};
-    antrian.push(pasienBaru);
+void HospitalQueue::registerPatient(const string& name, int id, const string& department) {
+    Patient newPatient = {name, id, department};
+    queue.push(newPatient);
 }
 
-void AntrianRumahSakit::layaniPasien() {
-    if (!antrian.empty()) {
-        pasienDilayani = antrian.front();
-        antrian.pop();
-        melayani = true;
+void HospitalQueue::servePatient() {
+    if (!queue.empty()) {
+        currentPatient = queue.front();
+        queue.pop();
+        serving = true;
     } else {
-        melayani = false;
+        serving = false;
     }
 }
 
-void AntrianRumahSakit::tampilkanAntrian(SDL_Renderer* renderer, TTF_Font* font, int startY, int& tableHeight) {
-    renderTable(renderer, font, antrian, startY, tableHeight);
+void HospitalQueue::displayQueue(SDL_Renderer* renderer, TTF_Font* font, int startY, int& tableHeight) {
+    renderTable(renderer, font, queue, startY, tableHeight);
 }
 
 void renderText(SDL_Renderer* renderer, TTF_Font* font, const string& text, SDL_Color color, int x, int y) {
@@ -117,35 +117,33 @@ void renderHeader(SDL_Renderer* renderer, TTF_Font* font, int startX, int startY
     SDL_Color textColor = {0, 0, 0, 255}; // Black color
     int headerHeight = BUTTON_HEIGHT; // Same height as buttons
 
-    string headerText = "ID   Nama   Poli";
+    string headerText = "ID   Name   Department";
     renderText(renderer, font, headerText, textColor, startX + 10, startY + (headerHeight / 2) - 10);
 }
 
-void renderTable(SDL_Renderer* renderer, TTF_Font* font, const queue<Pasien>& antrian, int startY, int& tableHeight) {
+void renderTable(SDL_Renderer* renderer, TTF_Font* font, const queue<Patient>& queue, int startY, int& tableHeight) {
     int y = startY;
-    int rows = antrian.size();
+    int rows = queue.size();
     tableHeight = TABLE_HEADER_HEIGHT + rows * (BUTTON_HEIGHT + TABLE_PADDING);
 
     SDL_Color textColor = {0, 0, 0, 255}; // Black color
     renderText(renderer, font, "ID", textColor, 50, y);
-    renderText(renderer, font, "Nama", textColor, 150, y);
-    renderText(renderer, font, "Poli", textColor, 400, y);
+    renderText(renderer, font, "Name", textColor, 150, y);
+    renderText(renderer, font, "Department", textColor, 400, y);
     y += TABLE_HEADER_HEIGHT + TABLE_PADDING; // Move down for the data rows
 
-    queue<Pasien> tempQueue = antrian; // Create a copy of the queue to iterate
+    queue<Patient> tempQueue = queue; // Create a copy of the queue to iterate
     while (!tempQueue.empty()) {
-        const auto& pasien = tempQueue.front();
+        const auto& patient = tempQueue.front();
 
-        renderText(renderer, font, to_string(pasien.id), textColor, 49, y); // ID column
-        renderText(renderer, font, pasien.nama, textColor, 150, y);         // Nama column
-        renderText(renderer, font, pasien.poli, textColor, 400, y);         // Poli column
+        renderText(renderer, font, to_string(patient.id), textColor, 49, y); // ID column
+        renderText(renderer, font, patient.name, textColor, 150, y);         // Name column
+        renderText(renderer, font, patient.department, textColor, 400, y);   // Department column
 
         y += TABLE_ROW_HEIGHT + TABLE_PADDING; // Move down for the next row
         tempQueue.pop();
     }
 }
-
-
 
 bool init(SDL_Window** window, SDL_Renderer** renderer, TTF_Font** font) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -153,7 +151,7 @@ bool init(SDL_Window** window, SDL_Renderer** renderer, TTF_Font** font) {
         return false;
     }
 
-    *window = SDL_CreateWindow("Sistem Antrian Rumah Sakit", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    *window = SDL_CreateWindow("Hospital Queue System", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (*window == nullptr) {
         cout << "Window could not be created! SDL_Error: " << SDL_GetError() << endl;
         return false;
@@ -200,18 +198,18 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    AntrianRumahSakit antrianRS;
+    HospitalQueue hospitalQueue;
 
-    Button daftarButton(50, 50, BUTTON_WIDTH, BUTTON_HEIGHT, {0, 128, 0, 255}, {0, 255, 0, 255}, {0, 64, 0, 255}, "Daftar Pasien");
-    Button layaniButton(50, 150, BUTTON_WIDTH, BUTTON_HEIGHT, {0, 0, 128, 255}, {0, 0, 255, 255}, {0, 0, 64, 255}, "Layani Pasien");
-    Button keluarButton(50, 250, BUTTON_WIDTH, BUTTON_HEIGHT, {128, 0, 0, 255}, {255, 0, 0, 255}, {64, 0, 0, 255}, "Keluar");
+    Button registerButton(50, 50, BUTTON_WIDTH, BUTTON_HEIGHT, {0, 128, 0, 255}, {0, 255, 0, 255}, {0, 64, 0, 255}, "Register Patient");
+    Button serveButton(50, 150, BUTTON_WIDTH, BUTTON_HEIGHT, {0, 0, 128, 255}, {0, 0, 255, 255}, {0, 0, 64, 255}, "Serve Patient");
+    Button exitButton(50, 250, BUTTON_WIDTH, BUTTON_HEIGHT, {128, 0, 0, 255}, {255, 0, 0, 255}, {64, 0, 0, 255}, "Exit");
 
     bool quit = false;
     bool inputMode = false;
-    bool waitingForNama = false;
+    bool waitingForName = false;
     bool waitingForId = false;
-    bool waitingForPoli = false;
-    string inputNama, inputIdStr, inputPoli;
+    bool waitingForDepartment = false;
+    string inputName, inputIdStr, inputDepartment;
     int inputId = 0;
     Button* activeButton = nullptr;
 
@@ -223,67 +221,64 @@ int main(int argc, char* argv[]) {
             if (e.type == SDL_QUIT) {
                 quit = true;
             } else if (e.type == SDL_MOUSEBUTTONDOWN) {
-                int x, y;
-                SDL_GetMouseState(&x, &y);
+                int mouseX, mouseY;
+                SDL_GetMouseState(&mouseX, &mouseY);
 
-                SDL_Point mousePoint = {x, y};
-
-                // Check if any button is clicked
-                if (SDL_PointInRect(&mousePoint, &daftarButton.rect)) {
-                    activeButton = &daftarButton;
+                if (SDL_PointInRect(&SDL_Point{mouseX, mouseY}, &registerButton.rect)) {
+                    registerButton.state = BUTTON_PRESSED;
                     inputMode = true;
-                    waitingForNama = true; // Start by inputting Nama
-                } else if (SDL_PointInRect(&mousePoint, &layaniButton.rect)) {
-                    activeButton = &layaniButton;
-                    if (!antrianRS.getAntrian().empty()) {
-                        antrianRS.layaniPasien();
-                    }
-                } else if (SDL_PointInRect(&mousePoint, &keluarButton.rect)) {
+                    waitingForName = true;
+                    waitingForId = false;
+                    waitingForDepartment = false;
+                } else if (SDL_PointInRect(&SDL_Point{mouseX, mouseY}, &serveButton.rect)) {
+                    serveButton.state = BUTTON_PRESSED;
+                    hospitalQueue.servePatient();
+                } else if (SDL_PointInRect(&SDL_Point{mouseX, mouseY}, &exitButton.rect)) {
+                    exitButton.state = BUTTON_PRESSED;
                     quit = true;
+                } else {
+                    registerButton.state = BUTTON_IDLE;
+                    serveButton.state = BUTTON_IDLE;
+                    exitButton.state = BUTTON_IDLE;
                 }
-            } else if (e.type == SDL_TEXTINPUT) {
-                if (activeButton == &daftarButton) {
-                    if (waitingForNama) {
-                        inputNama += e.text.text;
-                    } else if (waitingForPoli) {
-                        inputPoli += e.text.text;
-                    } else if (waitingForId) {
-                        inputIdStr += e.text.text;
+            } else if (e.type == SDL_TEXTINPUT && inputMode) {
+                if (waitingForName) {
+                    inputName += e.text.text;
+                } else if (waitingForId) {
+                    inputIdStr += e.text.text;
+                    if (isdigit(e.text.text[0])) {
+                        inputId = stoi(inputIdStr);
                     }
+                } else if (waitingForDepartment) {
+                    inputDepartment += e.text.text;
                 }
-            } else if (e.type == SDL_KEYDOWN) {
-                if (e.key.keysym.sym == SDLK_RETURN && inputMode) {
-                    if (activeButton == &daftarButton) {
-                        if (waitingForNama) {
-                            waitingForNama = false;
-                            waitingForId = true;
-                        } else if (waitingForId) {
-                            inputId = stoi(inputIdStr); // Convert inputIdStr to integer for ID
-                            waitingForId = false;
-                            waitingForPoli = true;
-                            inputIdStr.clear();
-                        } else if (waitingForPoli) {
-                            antrianRS.daftarPasien(inputNama, inputId, inputPoli);
-                            inputNama.clear();
-                            inputPoli.clear();
-                            inputId = 0;
-                            waitingForPoli = false;
-                            inputMode = false;
-                        }
+            } else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN) {
+                if (waitingForName) {
+                    waitingForName = false;
+                    waitingForId = true;
+                } else if (waitingForId) {
+                    waitingForId = false;
+                    waitingForDepartment = true;
+                } else if (waitingForDepartment) {
+                    waitingForDepartment = false;
+                    hospitalQueue.registerPatient(inputName, inputId, inputDepartment);
+                    inputName.clear();
+                    inputIdStr.clear();
+                    inputDepartment.clear();
+                    inputMode = false;
+                }
+            } else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_BACKSPACE) {
+                if (waitingForName) {
+                    if (!inputName.empty()) {
+                        inputName.pop_back();
                     }
-                } else if (e.key.keysym.sym == SDLK_BACKSPACE && inputMode) {
-                    if (waitingForNama) {
-                        if (!inputNama.empty()) {
-                            inputNama.pop_back();
-                        }
-                    } else if (waitingForPoli) {
-                        if (!inputPoli.empty()) {
-                            inputPoli.pop_back();
-                        }
-                    } else if (waitingForId) {
-                        if (!inputIdStr.empty()) {
-                            inputIdStr.pop_back();
-                        }
+                } else if (waitingForId) {
+                    if (!inputIdStr.empty()) {
+                        inputIdStr.pop_back();
+                    }
+                } else if (waitingForDepartment) {
+                    if (!inputDepartment.empty()) {
+                        inputDepartment.pop_back();
                     }
                 }
             }
@@ -292,44 +287,22 @@ int main(int argc, char* argv[]) {
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderClear(renderer);
 
-        renderButton(renderer, font, daftarButton);
-        renderButton(renderer, font, layaniButton);
-        renderButton(renderer, font, keluarButton);
+        renderButton(renderer, font, registerButton);
+        renderButton(renderer, font, serveButton);
+        renderButton(renderer, font, exitButton);
 
-        if (inputMode && activeButton == &daftarButton) {
-            SDL_Color textColor = {0, 0, 0, 255}; // Black color
-            string displayText;
-            if (waitingForNama) {
-                displayText = "Nama: " + inputNama;
-            } else if (waitingForId) {
-                displayText = "ID: " + inputIdStr;
-            } else if (waitingForPoli) {
-                displayText = "Poli: " + inputPoli;
-            }
-            renderText(renderer, font, displayText, textColor, 50, 350);
-        }
-
-        SDL_Color textColor = {0, 0, 0, 255}; // Black color
         int tableHeight;
-        renderTable(renderer, font, antrianRS.getAntrian(), 400, tableHeight);
+        hospitalQueue.displayQueue(renderer, font, 350, tableHeight);
 
-        int servingPatientY = 400 + tableHeight + TABLE_PADDING;
-
-        if (antrianRS.isMelayani()) {
-            const Pasien& pasien = antrianRS.getPasienDilayani();
-            stringstream ss;
-            ss << "Melayani pasien " << pasien.nama << " dengan ID: " << pasien.id << " untuk poli " << pasien.poli;
-            renderText(renderer, font, ss.str(), textColor, 50, servingPatientY);
-        } else if (antrianRS.getAntrian().empty() && !antrianRS.isMelayani()) {
-            renderText(renderer, font, "Tidak ada pasien dalam antrian", textColor, 50, servingPatientY);
+        if (hospitalQueue.isServing()) {
+            renderText(renderer, font, "Serving patient " + hospitalQueue.getCurrentPatient().name + " with ID " + to_string(hospitalQueue.getCurrentPatient().id) + " in department " + hospitalQueue.getCurrentPatient().department, {0, 0, 0, 255}, 50, 500);
         }
 
         SDL_RenderPresent(renderer);
-
-        SDL_Delay(16); // 60 FPS
     }
 
     SDL_StopTextInput();
     close(window, renderer, font);
+
     return 0;
 }
