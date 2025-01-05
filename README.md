@@ -59,3 +59,5 @@ Sebelum menjalankan proyek ini, pastikan Anda telah menginstal SDL2 dan SDL_ttf.
 ---
 
 Terima kasih telah menggunakan proyek ini!
+
+<p align="center">©️ 2024 Rechan Dinata</p>
