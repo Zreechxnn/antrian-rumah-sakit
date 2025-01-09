@@ -214,7 +214,7 @@ int main(int argc, char* argv[]) {
     Button* activeButton = nullptr;
 
     SDL_StartTextInput();
-
+    
     while (!quit) {
         SDL_Event e;
         while (SDL_PollEvent(&e) != 0) {
@@ -306,3 +306,4 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
+
